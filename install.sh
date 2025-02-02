@@ -7,6 +7,7 @@ pkg upgrade -y && echo "Updated packages" || echo "Error updating packages"
 if ! command -v curl &>/dev/null; then
     echo "curl is not installed. Installing curl..."
     pkg install curl -y && echo "Installed curl" || echo "Error installing curl"
+    pkg install jq -y && echo "Installed jq" || echo "Error installing jq"
 fi
 
 if [ ! -d "$HOME/storage" ]; then
