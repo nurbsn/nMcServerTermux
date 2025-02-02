@@ -69,15 +69,21 @@ fi
 
 case "$server_type" in
     1)
-        echo "Fetching PaperMC build information..."
-        paper_api="https://papermc.io/api/v2/projects/paper/versions/$version"
-        latest_build=$(curl -s "$paper_api" | grep -o '"builds":[^]]*' | sed 's/.*,//')
-        if [ -z "$latest_build" ]; then
-            echo "Error fetching build information. Exiting."
-            exit 1
+
+        MINECRAFT_VERSION=$version
+
+        LATEST_BUILD=$(curl -s https://api.papermc.io/v2/projects/paper/versions/${MINECRAFT_VERSION}/builds | \
+            jq -r '.builds | map(select(.channel == "default") | .build) | .[-1]')
+
+        if [ "$LATEST_BUILD" != "null" ]; then
+            JAR_NAME=paper-${MINECRAFT_VERSION}-${LATEST_BUILD}.jar
+            download_url="https://api.papermc.io/v2/projects/paper/versions/${MINECRAFT_VERSION}/builds/${LATEST_BUILD}/downloads/${JAR_NAME}"
+            jar_name="server.jar"
+        else
+            echo "No stable build for version $MINECRAFT_VERSION found :("
         fi
-        download_url="https://papermc.io/api/v2/projects/paper/versions/$version/builds/$latest_build/downloads/paper-$version-$latest_build.jar"
-        jar_name="server.jar"
+        echo "Fetching PaperMC build information..."
+        
         ;;
     2)
         echo "Fetching Purpur build information..."
